@@ -46,7 +46,7 @@ class phpfmt(sublime_plugin.EventListener):
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirnm, shell=False)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirnm, shell=False, startupinfo=startupinfo)
         res, err = p.communicate()
         if self.debug and err:
             print("err: ", err)
@@ -62,5 +62,3 @@ class phpfmt(sublime_plugin.EventListener):
 
     def revert_active_window(self):
         sublime.active_window().active_view().run_command("revert")
-
-
