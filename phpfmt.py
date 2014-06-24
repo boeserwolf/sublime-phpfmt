@@ -9,28 +9,16 @@ class phpfmt(sublime_plugin.EventListener):
     def __init__(self):
         self.debug = True
 
-    def run(self, cmd, dirnm):
-        if self.debug:
-            print("execute: ", cmd)
-
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirnm, shell=True)
-        res, err = p.communicate()
-        if self.debug:
-            if err:
-                print("err: ", err)
-            else:
-                print("success: ", res)
 
     def on_post_save_async(self, view):
         s = sublime.load_settings('phpfmt.sublime-settings')
         self.debug = s.get("debug", False)
         psr = s.get("psr1_and_2", False)
         php_bin = s.get("php_bin", "php")
-        formatter_path = dirname(realpath(__file__)) + "/codeFormatter.php"
+        formatter_path = os.path.join(dirname(realpath(__file__)), "codeFormatter.php")
 
         uri = view.file_name()
         dirnm, sfn = os.path.split(uri)
-        dirnm = dirnm.replace(" ", "\\ ")
         ext = os.path.splitext(uri)[1][1:]
 
         if self.debug:
@@ -39,16 +27,25 @@ class phpfmt(sublime_plugin.EventListener):
         if "php" != ext:
             return False
 
-        psr_param = ""
+        cmd = [php_bin, formatter_path]
+
         if psr:
-            psr_param = "--psr"
+            cmd.append("--psr")
+
+        cmd.append(uri)
 
         uri_tmp = uri + "~"
-        if "windows" == sublime.platform():
-            cmd = "\"{}\" \"{}\" {} \"{}\" > \"{}\" & move \"{}\" \"{}\";".format(php_bin, formatter_path, psr_param, uri, uri_tmp, uri_tmp, uri)
+
+        if self.debug:
+            print("cmd: ", cmd)
+
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirnm, shell=False)
+        res, err = p.communicate()
+        if self.debug and err:
+            print("err: ", err)
         else:
-            cmd = "\"{}\" \"{}\" {} \"{}\" > \"{}\"; \"{}\" -l \"{}\" && mv -v \"{}\" \"{}\";".format(php_bin, formatter_path, psr_param, uri, uri_tmp, php_bin, uri_tmp, uri_tmp, uri)
-
-        phpfmt().run(cmd, dirnm)
-
+            with open(uri_tmp, 'bw+') as f:
+                f.write(res)
+            os.rename(uri_tmp, uri)
+            sublime.active_window().active_view().run_command("revert")
 
