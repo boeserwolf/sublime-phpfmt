@@ -44,7 +44,11 @@ class phpfmt(sublime_plugin.EventListener):
             psr_param = "--psr"
 
         uri_tmp = uri + "~"
-        cmd = "\"{}\" \"{}\" {} \"{}\" > \"{}\"; \"{}\" -l \"{}\" && mv \"{}\" \"{}\";".format(php_bin, formatter_path, psr_param, uri, uri_tmp, php_bin, uri_tmp, uri_tmp, uri)
+        if "windows" == sublime.platform():
+            cmd = "\"{}\" \"{}\" {} \"{}\" > \"{}\" & move \"{}\" \"{}\";".format(php_bin, formatter_path, psr_param, uri, uri_tmp, uri_tmp, uri)
+        else:
+            cmd = "\"{}\" \"{}\" {} \"{}\" > \"{}\"; \"{}\" -l \"{}\" && mv -v \"{}\" \"{}\";".format(php_bin, formatter_path, psr_param, uri, uri_tmp, php_bin, uri_tmp, uri_tmp, uri)
+
         phpfmt().run(cmd, dirnm)
 
 
