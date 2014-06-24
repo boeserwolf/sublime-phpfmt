@@ -1,5 +1,6 @@
 import os
 import os.path
+import shutil
 import sublime
 import sublime_plugin
 import subprocess
@@ -10,12 +11,16 @@ class phpfmt(sublime_plugin.EventListener):
         self.debug = True
 
 
+    def on_post_save(self, view):
+        if int(sublime.version()) < 3000:
+            self.on_post_save_async(view)
+
     def on_post_save_async(self, view):
         s = sublime.load_settings('phpfmt.sublime-settings')
         self.debug = s.get("debug", False)
         psr = s.get("psr1_and_2", False)
         php_bin = s.get("php_bin", "php")
-        formatter_path = os.path.join(dirname(realpath(__file__)), "codeFormatter.php")
+        formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "phpfmt", "codeFormatter.php")
 
         uri = view.file_name()
         dirnm, sfn = os.path.split(uri)
@@ -27,7 +32,7 @@ class phpfmt(sublime_plugin.EventListener):
         if "php" != ext:
             return False
 
-        cmd = [php_bin, formatter_path]
+        cmd = [php_bin, "-ddisplay_errors=0", formatter_path]
 
         if psr:
             cmd.append("--psr")
@@ -38,14 +43,20 @@ class phpfmt(sublime_plugin.EventListener):
 
         if self.debug:
             print("cmd: ", cmd)
-
+        if os.name == 'nt':
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirnm, shell=False)
         res, err = p.communicate()
         if self.debug and err:
             print("err: ", err)
         else:
-            with open(uri_tmp, 'bw+') as f:
+            with open(uri_tmp, 'w+') as f:
                 f.write(res)
-            os.rename(uri_tmp, uri)
-            sublime.active_window().active_view().run_command("revert")
+            shutil.move(uri_tmp, uri)
+            sublime.set_timeout(self.revert_active_window, 50)
+
+    def revert_active_window(self):
+        sublime.active_window().active_view().run_command("revert")
+
 
