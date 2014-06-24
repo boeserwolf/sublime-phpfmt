@@ -51,10 +51,14 @@ class phpfmt(sublime_plugin.EventListener):
         if self.debug and err:
             print("err: ", err)
         else:
-            with open(uri_tmp, 'w+') as f:
-                f.write(res)
+            if int(sublime.version()) < 3000:
+                with open(uri_tmp, 'w+') as f:
+                    f.write(res)
+            else:
+                with open(uri_tmp, 'bw+') as f:
+                    f.write(res)
             shutil.move(uri_tmp, uri)
-            sublime.set_timeout(self.revert_active_window, 50)
+            sublime.set_timeout(self.revert_active_window, 10)
 
     def revert_active_window(self):
         sublime.active_window().active_view().run_command("revert")
