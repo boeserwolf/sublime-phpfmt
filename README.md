@@ -7,7 +7,7 @@ php.fmt and php.tools aim to help PHP development. One of the features, code for
 ### Installation
 Install this plugin through Package Manager. 
 
-It runs better with PHP 5.5 or newer installed in the machine running the plugin. Although there are reports saying it works seemingly correctly with PHP 5.3.24
+It runs better with PHP 5.5 or newer installed in the machine running the plugin. Although there are reports saying it works seemingly correctly with PHP 5.3.24, however slow.
 
 
 ### Settings
@@ -17,5 +17,3 @@ It runs better with PHP 5.5 or newer installed in the machine running the plugin
 "php_bin":"/usr/local/bin/php"
 ```
 
-### Limitations
-This is supported only in *nix systems. Please, if you use Windows, consider open an issue. If I see a lot of Windows users want to use this, I shall port it to Windows too.
