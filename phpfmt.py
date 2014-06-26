@@ -32,7 +32,12 @@ class phpfmt(sublime_plugin.EventListener):
         if "php" != ext:
             return False
 
-        cmd = [php_bin, "-ddisplay_errors=0", formatter_path]
+        cmd = [php_bin]
+
+        if self.debug:
+            cmd.append("-ddisplay_errors=0")
+
+        cmd.append(formatter_path)
 
         if psr:
             cmd.append("--psr")
@@ -51,8 +56,9 @@ class phpfmt(sublime_plugin.EventListener):
         else:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirnm, shell=False)
         res, err = p.communicate()
-        if self.debug and err:
-            print("err: ", err)
+        if err:
+            if self.debug:
+                print("err: ", err)
         else:
             if int(sublime.version()) < 3000:
                 with open(uri_tmp, 'w+') as f:
@@ -60,8 +66,10 @@ class phpfmt(sublime_plugin.EventListener):
             else:
                 with open(uri_tmp, 'bw+') as f:
                     f.write(res)
+            if self.debug:
+                print("Stored:", len(res), "bytes")
             shutil.move(uri_tmp, uri)
-            sublime.set_timeout(self.revert_active_window, 10)
+            sublime.set_timeout(self.revert_active_window, 50)
 
     def revert_active_window(self):
         sublime.active_window().active_view().run_command("revert")
