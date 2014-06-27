@@ -14,6 +14,7 @@ It runs better with PHP 5.5 or newer installed in the machine running the plugin
 ```
 // This option enabled the experimental formatting which complies with PSR1 and PSR2 standards
 "psr1_and_2":false,
-"php_bin":"/usr/local/bin/php"
+"php_bin":"/usr/local/bin/php",
+"indent_with_space":false
 ```
 
