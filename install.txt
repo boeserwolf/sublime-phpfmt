@@ -9,7 +9,7 @@ Please, before posting an issue that this plugin is not formatting your code, an
 
 - Is PHP configured in the default $PATH/%PATH% variable?
 
-- If PHP is not configured in $PATH/%PATH%, have you added the option "php_bin" in the configuration file?
+- If PHP is not configured in $PATH/%PATH%, have you added the option "php_bin" in the configuration file with full path of PHP binary?
 
 
 If you have answered more than one "no", then double check your environment.
